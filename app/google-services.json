@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "977141003602",
+    "project_id": "caesarcoin-app",
+    "storage_bucket": "caesarcoin-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:977141003602:android:77aa8e36b97a1c397c368b",
+        "android_client_info": {
+          "package_name": "com.example.caesarcoin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjONXWdmIGGGSZvo9mepuNyRdguWsL1i0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
