@@ -1,8 +1,15 @@
 package com.example.caesarcoin.model
 
+import com.google.firebase.firestore.DocumentId
+
 data class Usuario(
-    val nome: String,
-    val apelido: String,
-    val email: String,
-    val senha: String
-)
+    var nome: String = "",
+    var apelido: String = "",
+    var email: String = "",
+    var senha: String = ""
+) {
+    @DocumentId
+    var id: String = ""
+    
+    constructor() : this("", "", "", "")
+}

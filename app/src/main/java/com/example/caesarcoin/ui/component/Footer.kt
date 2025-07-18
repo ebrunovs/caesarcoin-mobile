@@ -20,14 +20,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.caesarcoin.R
+import com.example.caesarcoin.auth.AuthViewModel
 
 @Composable
 fun Footer(
     modifier: Modifier = Modifier,
     navController: NavController
 ) {
+    val authViewModel: AuthViewModel = viewModel()
+    
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -54,7 +58,10 @@ fun Footer(
                 navController.navigate("perfil")
             }
             FooterItem("Sair", Icons.AutoMirrored.Filled.ExitToApp) {
-                navController.navigate("sair")
+                authViewModel.logout()
+                navController.navigate("entrar") {
+                    popUpTo(0) { inclusive = true }
+                }
             }
         }
 

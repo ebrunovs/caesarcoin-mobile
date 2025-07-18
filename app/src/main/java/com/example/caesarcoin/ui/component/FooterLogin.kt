@@ -6,10 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.AccountBalanceWallet
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.automirrored.filled.Login
+import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -41,13 +39,13 @@ fun FooterLogin(
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            FooterLoginItem("Entrar", Icons.Default.Home) {
+            FooterLoginItem("Entrar", Icons.AutoMirrored.Filled.Login) {
                 navController.navigate("entrar")
             }
 
             Spacer(modifier = Modifier.width(60.dp)) // espaço para a moeda
 
-            FooterLoginItem("Cadastrar", Icons.Default.AccountCircle) {
+            FooterLoginItem("Cadastrar", Icons.Default.PersonAdd) {
                 navController.navigate("cadastrar")
             }
         }
