@@ -159,23 +159,6 @@ fun LoginScreen(
                             Column(
                                 modifier = Modifier.padding(16.dp)
                             ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        "🔍 Diagnóstico Firebase",
-                                        color = Color(0xFFFFD700),
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    TextButton(
-                                        onClick = { authViewModel.limparDiagnostico() }
-                                    ) {
-                                        Text("✕", color = Color.Red)
-                                    }
-                                }
-                                
                                 LazyColumn(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -195,25 +178,6 @@ fun LoginScreen(
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                     }
-                    Button(
-                        onClick = { 
-                            authViewModel.limparErro()
-                            authViewModel.diagnosticarFirebase()
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF333333),
-                            contentColor = Color.White
-                        ),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text(
-                            "🔧 Diagnosticar Firebase",
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(8.dp)
-                        )
-                    }
-
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(
                         onClick = { 

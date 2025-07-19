@@ -47,7 +47,6 @@ class UsuarioDao {
             
             result.toObject<Usuario>()
         } catch (e: Exception) {
-            println("UsuarioDao", "Erro ao buscar usuário por ID: ${e.message}")
             null
         }
     }
@@ -60,7 +59,6 @@ class UsuarioDao {
             
             result.toObjects<Usuario>()
         } catch (e: Exception) {
-            println("UsuarioDao", "Erro ao listar usuários: ${e.message}")
             emptyList()
         }
     }
@@ -72,18 +70,14 @@ class UsuarioDao {
                     .document(usuario.id)
                     .set(usuario)
                     .addOnSuccessListener {
-                        Log.d("UsuarioDao", "Usuário atualizado com sucesso!")
                     }
-                    .addOnFailureListener { e ->
-                        println("UsuarioDao", "Erro ao atualizar usuário: $e")
+                    .addOnFailureListener {
                     }.await()
                 true
             } else {
-                println("UsuarioDao", "ID do usuário está vazio")
                 false
             }
         } catch (e: Exception) {
-            println("UsuarioDao", "Erro ao atualizar usuário: ${e.message}")
             false
         }
     }
@@ -95,18 +89,14 @@ class UsuarioDao {
                     .document(usuario.id)
                     .delete()
                     .addOnSuccessListener {
-                        Log.d("UsuarioDao", "Usuário removido com sucesso!")
                     }
-                    .addOnFailureListener { e ->
-                        println("UsuarioDao", "Erro ao remover usuário: $e")
+                    .addOnFailureListener {
                     }.await()
                 true
             } else {
-                println("UsuarioDao", "ID do usuário está vazio")
                 false
             }
         } catch (e: Exception) {
-            println("UsuarioDao", "Erro ao remover usuário: ${e.message}")
             false
         }
     }

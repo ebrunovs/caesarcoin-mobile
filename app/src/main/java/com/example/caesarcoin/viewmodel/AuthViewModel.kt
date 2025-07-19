@@ -98,25 +98,4 @@ class AuthViewModel : ViewModel() {
     fun limparErro() {
         _erro.value = null
     }
-
-    fun diagnosticarFirebase() {
-        _carregando.value = true
-        _erro.value = null
-        _diagnostico.value = "🔄 Testando Firestore..."
-        
-        viewModelScope.launch {
-            try {
-                val resultado = usuarioDao.diagnosticarFirestore()
-                _diagnostico.value = resultado
-            } catch (e: Exception) {
-                _diagnostico.value = "❌ ERRO: ${e.message}"
-            } finally {
-                _carregando.value = false
-            }
-        }
-    }
-
-    fun limparDiagnostico() {
-        _diagnostico.value = null
-    }
 }
