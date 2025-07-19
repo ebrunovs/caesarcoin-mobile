@@ -27,10 +27,10 @@ import com.example.caesarcoin.model.Usuario
 
 @Composable
 fun CadastroScreen(
+    authViewModel: AuthViewModel,
     onCadastrar: (Usuario) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val authViewModel: AuthViewModel = viewModel()
     val erro by authViewModel.erro.collectAsState()
     val carregando by authViewModel.carregando.collectAsState()
     

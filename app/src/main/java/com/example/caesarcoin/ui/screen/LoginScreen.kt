@@ -27,10 +27,10 @@ import com.example.caesarcoin.auth.AuthViewModel
 
 @Composable
 fun LoginScreen(
+    authViewModel: AuthViewModel,
     onLogin: (email: String, senha: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val authViewModel: AuthViewModel = viewModel()
     val erro by authViewModel.erro.collectAsState()
     val carregando by authViewModel.carregando.collectAsState()
     val diagnostico by authViewModel.diagnostico.collectAsState()

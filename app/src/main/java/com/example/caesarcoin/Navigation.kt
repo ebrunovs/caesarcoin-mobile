@@ -24,7 +24,7 @@ fun NavigationGraph(navController: NavHostController) {
     val erro by authViewModel.erro.collectAsState()
 
     LaunchedEffect(usuario) {
-        if (usuario != null) {
+        usuario?.let { user ->
             navController.navigate("home") {
                 popUpTo("entrar") { inclusive = true }
             }
@@ -43,11 +43,13 @@ fun NavigationGraph(navController: NavHostController) {
         composable("perfil") { PerfilScreen() }
         composable("entrar") {
             LoginScreen(
+                authViewModel = authViewModel,
                 onLogin = { _, _ -> /* Não usado mais */ }
             )
         }
         composable("cadastrar") {
             CadastroScreen(
+                authViewModel = authViewModel,
                 onCadastrar = { _ -> /* Não usado mais */ }
             )
         }
