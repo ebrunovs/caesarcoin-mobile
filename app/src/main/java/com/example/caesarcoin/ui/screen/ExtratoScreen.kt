@@ -135,36 +135,7 @@ fun ExtratoScreen(
                         GraficoSimplificadoCard(extratos = extratos)
                     }
                     
-                    // 4. Botão Adicionar Transação
-                    item {
-                        Button(
-                            onClick = { mostrarCadastro = true },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFFFD700),
-                                contentColor = Color.Black
-                            ),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Icon(Icons.Default.Add, contentDescription = null)
-                                Text(
-                                    "Adicionar Transação",
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Icon(
-                                    Icons.Default.Add,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                        }
-                    }
+
                     
                     // 5. Lista de Transações
                     items(extratos) { extrato ->
@@ -181,6 +152,22 @@ fun ExtratoScreen(
                     }
                 }
             }
+        }
+        
+        // Botão flutuante de adicionar transação
+        FloatingActionButton(
+            onClick = { mostrarCadastro = true },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
+            containerColor = Color(0xFFFFD700),
+            contentColor = Color.Black
+        ) {
+            Icon(
+                Icons.Default.Add,
+                contentDescription = "Adicionar Transação",
+                modifier = Modifier.size(24.dp)
+            )
         }
         
         // Mostrar erro se houver
