@@ -32,6 +32,8 @@ import java.util.*
 @Composable
 fun ExtratoScreen(
     authViewModel: AuthViewModel = viewModel(),
+    onNavigateToHome: () -> Unit = {},
+    onNavigateToCadastro: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val extratoViewModel: ExtratoViewModel = viewModel()
@@ -43,8 +45,6 @@ fun ExtratoScreen(
     val carregando by extratoViewModel.carregando.collectAsState()
     val erro by extratoViewModel.erro.collectAsState()
     
-    var mostrarCadastro by remember { mutableStateOf(false) }
-    
     val formatoMoeda = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
     val formatoData = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
     
@@ -53,15 +53,6 @@ fun ExtratoScreen(
         usuario?.let { user ->
             extratoViewModel.carregarExtratos(user.id)
         }
-    }
-    
-    if (mostrarCadastro) {
-        CadastroTransacaoScreen(
-            authViewModel = authViewModel,
-            extratoViewModel = extratoViewModel,
-            onVoltar = { mostrarCadastro = false }
-        )
-        return
     }
     
     Box(
@@ -79,7 +70,7 @@ fun ExtratoScreen(
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = { /* Navigation back */ }) {
+                IconButton(onClick = onNavigateToHome) {
                     Icon(
                         Icons.Default.ArrowBack,
                         contentDescription = "Voltar",
@@ -156,7 +147,7 @@ fun ExtratoScreen(
         
         // Botão flutuante de adicionar transação
         FloatingActionButton(
-            onClick = { mostrarCadastro = true },
+            onClick = onNavigateToCadastro,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),

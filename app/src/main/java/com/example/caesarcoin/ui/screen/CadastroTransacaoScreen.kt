@@ -30,7 +30,7 @@ fun CadastroTransacaoScreen(
     authViewModel: AuthViewModel = viewModel(),
     extratoViewModel: ExtratoViewModel = viewModel(),
     onVoltar: () -> Unit,
-    onTransacaoSalva: () -> Unit = {},
+    onTransacaoSalva: () -> Unit = onVoltar,
     modifier: Modifier = Modifier
 ) {
     val usuario by authViewModel.usuarioLogado.collectAsState()

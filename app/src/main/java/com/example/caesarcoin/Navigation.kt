@@ -42,16 +42,28 @@ fun NavigationGraph(navController: NavHostController) {
         composable("home") { HomeScreen() }
         composable("extrato") { 
             ExtratoScreen(
-                authViewModel = authViewModel // Passar o authViewModel compartilhado
+                authViewModel = authViewModel, // Passar o authViewModel compartilhado
+                onNavigateToHome = { 
+                    navController.navigate("home") {
+                        popUpTo("extrato") { inclusive = true }
+                    }
+                },
+                onNavigateToCadastro = { 
+                    navController.navigate("cadastro_transacao")
+                }
             ) 
         }
         composable("perfil") { PerfilScreen() }
         composable("cadastro_transacao") { 
             CadastroTransacaoScreen(
                 authViewModel = authViewModel, // Passar o authViewModel compartilhado
-                onVoltar = { navController.popBackStack() },
+                onVoltar = { 
+                    navController.navigate("home") {
+                        popUpTo("cadastro_transacao") { inclusive = true }
+                    }
+                },
                 onTransacaoSalva = { 
-                    navController.navigate("extrato") {
+                    navController.navigate("home") {
                         popUpTo("cadastro_transacao") { inclusive = true }
                     }
                 }
