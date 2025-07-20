@@ -12,6 +12,7 @@ import androidx.navigation.NavHostController
 import com.example.caesarcoin.auth.AuthViewModel
 import com.example.caesarcoin.model.Usuario
 import com.example.caesarcoin.ui.screen.CadastroScreen
+import com.example.caesarcoin.ui.screen.CadastroTransacaoScreen
 import com.example.caesarcoin.ui.screen.ExtratoScreen
 import com.example.caesarcoin.ui.screen.HomeScreen
 import com.example.caesarcoin.ui.screen.LoginScreen
@@ -39,8 +40,23 @@ fun NavigationGraph(navController: NavHostController) {
 
     NavHost(navController = navController, startDestination = "entrar") {
         composable("home") { HomeScreen() }
-        composable("extrato") { ExtratoScreen() }
+        composable("extrato") { 
+            ExtratoScreen(
+                authViewModel = authViewModel // Passar o authViewModel compartilhado
+            ) 
+        }
         composable("perfil") { PerfilScreen() }
+        composable("cadastro_transacao") { 
+            CadastroTransacaoScreen(
+                authViewModel = authViewModel, // Passar o authViewModel compartilhado
+                onVoltar = { navController.popBackStack() },
+                onTransacaoSalva = { 
+                    navController.navigate("extrato") {
+                        popUpTo("cadastro_transacao") { inclusive = true }
+                    }
+                }
+            )
+        }
         composable("entrar") {
             LoginScreen(
                 authViewModel = authViewModel,

@@ -1,0 +1,398 @@
+package com.example.caesarcoin.ui.screen
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.caesarcoin.auth.AuthViewModel
+import com.example.caesarcoin.model.Extrato
+import com.example.caesarcoin.model.TipoTransacao
+import com.example.caesarcoin.viewmodel.ExtratoViewModel
+import com.google.firebase.Timestamp
+import java.text.SimpleDateFormat
+import java.util.*
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CadastroTransacaoScreen(
+    authViewModel: AuthViewModel = viewModel(),
+    extratoViewModel: ExtratoViewModel = viewModel(),
+    onVoltar: () -> Unit,
+    onTransacaoSalva: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    val usuario by authViewModel.usuarioLogado.collectAsState()
+    val carregando by extratoViewModel.carregando.collectAsState()
+    val erro by extratoViewModel.erro.collectAsState()
+    
+    var titulo by remember { mutableStateOf("") }
+    var descricao by remember { mutableStateOf("") }
+    var valor by remember { mutableStateOf("") }
+    var tipoSelecionado by remember { mutableStateOf(TipoTransacao.DEBITO) }
+    var dataSelecionada by remember { mutableStateOf(Date()) }
+    var transacaoSalva by remember { mutableStateOf(false) }
+    
+    val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onVoltar) {
+                    Icon(
+                        Icons.Default.ArrowBack,
+                        contentDescription = "Voltar",
+                        tint = Color.White
+                    )
+                }
+                
+                Text(
+                    text = "Transação",
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center
+                )
+                
+                // Espaço para balancear o layout
+                Box(modifier = Modifier.width(48.dp))
+            }
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            // Card do formulário
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFF2A2A2A)
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = "Cadastre uma Nova Transação",
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                    
+                    // Campo Título
+                    OutlinedTextField(
+                        value = titulo,
+                        onValueChange = { titulo = it },
+                        label = { Text("Título", color = Color.Gray) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFFFFD700),
+                            unfocusedBorderColor = Color.Gray,
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            cursorColor = Color(0xFFFFD700)
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    
+                    // Campo Descrição
+                    OutlinedTextField(
+                        value = descricao,
+                        onValueChange = { descricao = it },
+                        label = { Text("Descrição", color = Color.Gray) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFFFFD700),
+                            unfocusedBorderColor = Color.Gray,
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            cursorColor = Color(0xFFFFD700)
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 2
+                    )
+                    
+                    // Dropdown para Tipo
+                    var expandido by remember { mutableStateOf(false) }
+                    
+                    ExposedDropdownMenuBox(
+                        expanded = expandido,
+                        onExpandedChange = { expandido = !expandido },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = if (tipoSelecionado == TipoTransacao.CREDITO) "Entrada (+)" else "Saída (-)",
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Tipo", color = Color.Gray) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandido) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color(0xFFFFD700),
+                                unfocusedBorderColor = Color.Gray,
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+                                cursorColor = Color(0xFFFFD700)
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor()
+                        )
+                        
+                        ExposedDropdownMenu(
+                            expanded = expandido,
+                            onDismissRequest = { expandido = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { 
+                                    Text(
+                                        "Entrada (+)", 
+                                        color = Color(0xFF4CAF50)
+                                    ) 
+                                },
+                                onClick = {
+                                    tipoSelecionado = TipoTransacao.CREDITO
+                                    expandido = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { 
+                                    Text(
+                                        "Saída (-)", 
+                                        color = Color(0xFFF44336)
+                                    ) 
+                                },
+                                onClick = {
+                                    tipoSelecionado = TipoTransacao.DEBITO
+                                    expandido = false
+                                }
+                            )
+                        }
+                    }
+                    
+                    // Campo Data
+                    var mostrarDatePicker by remember { mutableStateOf(false) }
+                    
+                    OutlinedTextField(
+                        value = dateFormatter.format(dataSelecionada),
+                        onValueChange = {},
+                        label = { Text("Data de Realização", color = Color.Gray) },
+                        readOnly = true,
+                        trailingIcon = {
+                            IconButton(onClick = { mostrarDatePicker = true }) {
+                                Icon(
+                                    Icons.Default.DateRange,
+                                    contentDescription = "Selecionar data",
+                                    tint = Color(0xFFFFD700)
+                                )
+                            }
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFFFFD700),
+                            unfocusedBorderColor = Color.Gray,
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            cursorColor = Color(0xFFFFD700)
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    
+                    // Implementação simples de Date Picker
+                    if (mostrarDatePicker) {
+                        AlertDialog(
+                            onDismissRequest = { mostrarDatePicker = false },
+                            title = { Text("Selecionar Data", color = Color.White) },
+                            text = {
+                                Column {
+                                    Text("Data atual: ${dateFormatter.format(dataSelecionada)}", color = Color.Gray)
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    
+                                    // Botões para dias comuns
+                                    val hoje = Date()
+                                    val ontem = Date(hoje.time - 24 * 60 * 60 * 1000)
+                                    val anteontem = Date(hoje.time - 2 * 24 * 60 * 60 * 1000)
+                                    
+                                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        Button(
+                                            onClick = { 
+                                                dataSelecionada = hoje
+                                                mostrarDatePicker = false
+                                            },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = Color(0xFFFFD700),
+                                                contentColor = Color.Black
+                                            ),
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Text("Hoje (${dateFormatter.format(hoje)})")
+                                        }
+                                        
+                                        Button(
+                                            onClick = { 
+                                                dataSelecionada = ontem
+                                                mostrarDatePicker = false
+                                            },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = Color.Gray,
+                                                contentColor = Color.White
+                                            ),
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Text("Ontem (${dateFormatter.format(ontem)})")
+                                        }
+                                        
+                                        Button(
+                                            onClick = { 
+                                                dataSelecionada = anteontem
+                                                mostrarDatePicker = false
+                                            },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = Color.Gray,
+                                                contentColor = Color.White
+                                            ),
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Text("Anteontem (${dateFormatter.format(anteontem)})")
+                                        }
+                                    }
+                                }
+                            },
+                            confirmButton = {
+                                TextButton(onClick = { mostrarDatePicker = false }) {
+                                    Text("Fechar", color = Color(0xFFFFD700))
+                                }
+                            },
+                            containerColor = Color(0xFF2A2A2A)
+                        )
+                    }
+                    
+                    // Campo Valor
+                    OutlinedTextField(
+                        value = valor,
+                        onValueChange = { novoValor ->
+                            // Filtrar apenas números e ponto decimal
+                            if (novoValor.matches(Regex("^\\d*\\.?\\d*$"))) {
+                                valor = novoValor
+                            }
+                        },
+                        label = { Text("Valor", color = Color.Gray) },
+                        prefix = { Text("R$ ", color = Color.Gray) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFFFFD700),
+                            unfocusedBorderColor = Color.Gray,
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            cursorColor = Color(0xFFFFD700)
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Botões
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = onVoltar,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = Color.Gray
+                            )
+                        ) {
+                            Text("Cancelar")
+                        }
+                        
+                        Button(
+                            onClick = {
+                                val usuarioAtual = usuario
+                                if (usuarioAtual != null && titulo.isNotBlank() && valor.isNotBlank()) {
+                                    val valorDouble = valor.toDoubleOrNull() ?: 0.0
+                                    if (valorDouble > 0) {
+                                        val novaTransacao = Extrato(
+                                            titulo = titulo,
+                                            descricao = descricao,
+                                            valor = valorDouble,
+                                            tipo = tipoSelecionado,
+                                            data = Timestamp(dataSelecionada),
+                                            usuarioId = usuarioAtual.id
+                                        )
+                                        extratoViewModel.adicionarTransacao(novaTransacao, usuarioAtual.id)
+                                        transacaoSalva = true
+                                    }
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFFFFD700),
+                                contentColor = Color.Black
+                            ),
+                            enabled = !carregando
+                        ) {
+                            if (carregando) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    color = Color.Black
+                                )
+                            } else {
+                                Text("Cadastrar")
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Mostrar erro se houver
+            erro?.let { mensagemErro ->
+                Spacer(modifier = Modifier.height(16.dp))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0x44FF0000)
+                    )
+                ) {
+                    Text(
+                        text = "❌ ERRO: $mensagemErro",
+                        color = Color.Red,
+                        modifier = Modifier.padding(16.dp),
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+    }
+    
+    // Redirecionar para extrato quando transação for salva com sucesso
+    LaunchedEffect(transacaoSalva, carregando, erro) {
+        if (transacaoSalva && !carregando && erro == null) {
+            onTransacaoSalva()
+        }
+    }
+}
