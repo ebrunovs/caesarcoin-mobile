@@ -17,10 +17,12 @@ import com.example.caesarcoin.ui.screen.ExtratoScreen
 import com.example.caesarcoin.ui.screen.HomeScreen
 import com.example.caesarcoin.ui.screen.LoginScreen
 import com.example.caesarcoin.ui.screen.PerfilScreen
+import com.example.caesarcoin.viewmodel.ExtratoViewModel
 
 @Composable
 fun NavigationGraph(navController: NavHostController) {
     val authViewModel: AuthViewModel = viewModel()
+    val extratoViewModel: ExtratoViewModel = viewModel() // Instância compartilhada
     val usuario by authViewModel.usuarioLogado.collectAsState()
     val erro by authViewModel.erro.collectAsState()
 
@@ -39,10 +41,22 @@ fun NavigationGraph(navController: NavHostController) {
     }
 
     NavHost(navController = navController, startDestination = "entrar") {
-        composable("home") { HomeScreen() }
+        composable("home") { 
+            HomeScreen(
+                authViewModel = authViewModel,
+                extratoViewModel = extratoViewModel,
+                onNavigateToExtrato = { 
+                    navController.navigate("extrato")
+                },
+                onNavigateToCadastro = { 
+                    navController.navigate("cadastro_transacao")
+                }
+            ) 
+        }
         composable("extrato") { 
             ExtratoScreen(
                 authViewModel = authViewModel, // Passar o authViewModel compartilhado
+                extratoViewModel = extratoViewModel, // Passar o extratoViewModel compartilhado
                 onNavigateToHome = { 
                     navController.navigate("home") {
                         popUpTo("extrato") { inclusive = true }
@@ -57,6 +71,7 @@ fun NavigationGraph(navController: NavHostController) {
         composable("cadastro_transacao") { 
             CadastroTransacaoScreen(
                 authViewModel = authViewModel, // Passar o authViewModel compartilhado
+                extratoViewModel = extratoViewModel, // Passar o extratoViewModel compartilhado
                 onVoltar = { 
                     navController.navigate("home") {
                         popUpTo("cadastro_transacao") { inclusive = true }

@@ -32,11 +32,11 @@ import java.util.*
 @Composable
 fun ExtratoScreen(
     authViewModel: AuthViewModel = viewModel(),
+    extratoViewModel: ExtratoViewModel = viewModel(),
     onNavigateToHome: () -> Unit = {},
     onNavigateToCadastro: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val extratoViewModel: ExtratoViewModel = viewModel()
     val usuario by authViewModel.usuarioLogado.collectAsState()
     val extratos by extratoViewModel.extratos.collectAsState()
     val totalCreditos by extratoViewModel.totalCreditos.collectAsState()
