@@ -48,7 +48,6 @@ fun HomeScreen(
     val formatoData = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
     val formatoDataCompleta = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("pt", "BR"))
     
-    // Carregar extratos quando o usuário estiver disponível
     LaunchedEffect(usuario?.id) {
         usuario?.let { user ->
             extratoViewModel.carregarExtratos(user.id)
@@ -65,7 +64,6 @@ fun HomeScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Header com nome do usuário
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -109,7 +107,6 @@ fun HomeScreen(
                 }
             }
             
-            // Cartão principal com saldo
             item {
                 Card(
                     modifier = Modifier
@@ -149,7 +146,6 @@ fun HomeScreen(
                                     )
                                 }
                                 
-                                // Botão de adicionar transação
                                 IconButton(
                                     onClick = onNavigateToCadastro,
                                     modifier = Modifier
@@ -177,13 +173,11 @@ fun HomeScreen(
                 }
             }
             
-            // Entradas e Saídas
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // Card Entradas
                     Card(
                         modifier = Modifier.weight(1f),
                         colors = CardDefaults.cardColors(
@@ -232,7 +226,6 @@ fun HomeScreen(
                         }
                     }
                     
-                    // Card Saídas
                     Card(
                         modifier = Modifier.weight(1f),
                         colors = CardDefaults.cardColors(
@@ -283,7 +276,6 @@ fun HomeScreen(
                 }
             }
             
-            // Título da seção de transações
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -307,7 +299,6 @@ fun HomeScreen(
                 }
             }
             
-            // Últimas 5 transações
             if (carregando) {
                 item {
                     Box(
@@ -365,7 +356,6 @@ fun HomeScreen(
                 }
             }
             
-            // Espaço no final
             item {
                 Spacer(modifier = Modifier.height(80.dp))
             }
@@ -392,7 +382,6 @@ fun HomeTransacaoCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Ícone baseado no tipo
             val (icone, cor) = when (extrato.tipo) {
                 TipoTransacao.CREDITO -> Pair(Icons.Default.ArrowDownward, Color(0xFF4CAF50))
                 TipoTransacao.DEBITO -> Pair(Icons.Default.ArrowUpward, Color(0xFFF44336))
@@ -417,7 +406,6 @@ fun HomeTransacaoCard(
             
             Spacer(modifier = Modifier.width(12.dp))
             
-            // Informações da transação
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = extrato.titulo,
@@ -439,7 +427,6 @@ fun HomeTransacaoCard(
                 )
             }
             
-            // Valor
             Text(
                 text = "${if (extrato.tipo == TipoTransacao.CREDITO) "+" else "-"}${formatoMoeda.format(extrato.valor)}",
                 color = cor,

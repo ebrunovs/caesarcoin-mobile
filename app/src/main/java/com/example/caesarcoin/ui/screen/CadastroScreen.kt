@@ -50,7 +50,6 @@ fun CadastroScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(24.dp)
         ) {
-            // Logo
             Image(
                 painter = painterResource(id = R.drawable.caesar),
                 contentDescription = "Caesar",

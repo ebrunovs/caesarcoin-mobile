@@ -43,14 +43,13 @@ fun FooterLogin(
                 navController.navigate("entrar")
             }
 
-            Spacer(modifier = Modifier.width(60.dp)) // espaço para a moeda
+            Spacer(modifier = Modifier.width(60.dp))
 
             FooterLoginItem("Cadastrar", Icons.Default.PersonAdd) {
                 navController.navigate("cadastrar")
             }
         }
 
-        // Botão Central (Caesarcoin)
         Box(
             modifier = Modifier
                 .size(70.dp)
