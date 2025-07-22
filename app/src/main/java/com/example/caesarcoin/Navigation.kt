@@ -50,6 +50,9 @@ fun NavigationGraph(navController: NavHostController) {
                 },
                 onNavigateToCadastro = { 
                     navController.navigate("cadastro_transacao")
+                },
+                onNavigateToPerfil = { 
+                    navController.navigate("perfil")
                 }
             ) 
         }
@@ -67,7 +70,14 @@ fun NavigationGraph(navController: NavHostController) {
                 }
             ) 
         }
-        composable("perfil") { PerfilScreen() }
+        composable("perfil") { 
+            PerfilScreen(
+                authViewModel = authViewModel,
+                onNavigateBack = { 
+                    navController.navigateUp()
+                }
+            ) 
+        }
         composable("cadastro_transacao") { 
             CadastroTransacaoScreen(
                 authViewModel = authViewModel, // Passar o authViewModel compartilhado

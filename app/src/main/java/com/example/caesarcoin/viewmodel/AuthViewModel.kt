@@ -10,7 +10,9 @@ import kotlinx.coroutines.launch
 
 class AuthViewModel : ViewModel() {
 
-    private val usuarioDao = UsuarioDao()
+    private val usuarioDao = UsuarioDao().apply {
+        onDebugMessage = { message -> addDebugMessage(message) }
+    }
 
     private val _usuarioLogado = MutableStateFlow<Usuario?>(null)
     val usuarioLogado: StateFlow<Usuario?> = _usuarioLogado
@@ -23,6 +25,15 @@ class AuthViewModel : ViewModel() {
 
     private val _diagnostico = MutableStateFlow<String?>(null)
     val diagnostico: StateFlow<String?> = _diagnostico
+    
+    private val _debugMessages = MutableStateFlow<List<String>>(emptyList())
+    val debugMessages: StateFlow<List<String>> = _debugMessages
+    
+    private fun addDebugMessage(message: String) {
+        val timestamp = System.currentTimeMillis() % 100000
+        val newMessage = "[$timestamp] $message"
+        _debugMessages.value = (_debugMessages.value + newMessage).takeLast(10)
+    }
 
     fun login(email: String, senha: String) {
         if (email.isBlank() || senha.isBlank()) {
@@ -97,5 +108,57 @@ class AuthViewModel : ViewModel() {
 
     fun limparErro() {
         _erro.value = null
+    }
+    
+    suspend fun atualizarPerfil(novoNome: String, novoSobrenome: String, novoEmail: String, novaSenha: String) {
+        val usuarioAtual = _usuarioLogado.value ?: return
+        
+        addDebugMessage("🔄 Iniciando atualização do perfil...")
+        addDebugMessage("👤 Usuário atual ID: ${usuarioAtual.id}")
+        addDebugMessage("📝 Nome: '$novoNome'")
+        addDebugMessage("👨 Sobrenome: '$novoSobrenome'") 
+        addDebugMessage("📧 Email: '$novoEmail'")
+        addDebugMessage("🔒 Senha: '${if(novaSenha.isBlank()) "VAZIA" else "DEFINIDA (${novaSenha.length} chars)"}'")
+
+        if (novoNome.isBlank() || novoEmail.isBlank()) {
+            addDebugMessage("❌ Erro: Nome e email são obrigatórios")
+            _erro.value = "Nome e email são obrigatórios"
+            return
+        }
+
+        _carregando.value = true
+        _erro.value = null
+
+        try {
+            addDebugMessage("⏳ Criando usuário atualizado...")
+            val usuarioAtualizado = usuarioAtual.copy(
+                nome = novoNome,
+                apelido = novoSobrenome,
+                email = novoEmail,
+                senha = novaSenha
+            ).apply {
+                id = usuarioAtual.id // CRÍTICO: Preservar o ID após o copy
+            }
+            
+            addDebugMessage("📤 Enviando para UsuarioDao...")
+            addDebugMessage("🆔 ID que será usado: '${usuarioAtualizado.id}'")
+
+            val sucesso = usuarioDao.atualizarUsuario(usuarioAtualizado)
+            if (sucesso) {
+                addDebugMessage("✅ Sucesso! Atualizando estado local...")
+                _usuarioLogado.value = usuarioAtualizado
+                _erro.value = null
+            } else {
+                addDebugMessage("❌ UsuarioDao retornou FALSE")
+                _erro.value = "Erro ao atualizar perfil"
+            }
+        } catch (e: Exception) {
+            addDebugMessage("💥 EXCEÇÃO: ${e.message}")
+            addDebugMessage("🔍 Tipo: ${e.javaClass.simpleName}")
+            _erro.value = "Erro ao atualizar perfil: ${e.message}"
+        } finally {
+            _carregando.value = false
+            addDebugMessage("🏁 Processo finalizado")
+        }
     }
 }

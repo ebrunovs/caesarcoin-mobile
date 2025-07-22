@@ -1,6 +1,7 @@
 package com.example.caesarcoin.ui.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -33,6 +34,7 @@ fun HomeScreen(
     extratoViewModel: ExtratoViewModel = viewModel(),
     onNavigateToExtrato: () -> Unit = {},
     onNavigateToCadastro: () -> Unit = {},
+    onNavigateToPerfil: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val usuario by authViewModel.usuarioLogado.collectAsState()
@@ -93,7 +95,8 @@ fun HomeScreen(
                             .background(
                                 Color(0xFFFFD700),
                                 RoundedCornerShape(20.dp)
-                            ),
+                            )
+                            .clickable { onNavigateToPerfil() },
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
