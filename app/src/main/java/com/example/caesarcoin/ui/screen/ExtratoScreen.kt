@@ -6,11 +6,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -133,7 +136,12 @@ fun ExtratoScreen(
                         TransacaoCard(
                             extrato = extrato,
                             formatoMoeda = formatoMoeda,
-                            formatoData = formatoData
+                            formatoData = formatoData,
+                            onExcluir = { extratoId ->
+                                usuario?.let { user ->
+                                    extratoViewModel.excluirTransacao(extratoId, user.id)
+                                }
+                            }
                         )
                     }
                     item {
@@ -564,8 +572,11 @@ fun GraficoLinhasCard(extratos: List<Extrato>) {
 fun TransacaoCard(
     extrato: Extrato,
     formatoMoeda: NumberFormat,
-    formatoData: SimpleDateFormat
-) {
+    formatoData: SimpleDateFormat,
+    onExcluir: (String) -> Unit = {} // Novo parâmetro
+)  {
+    var mostrarDialogo by remember { mutableStateOf(false) }
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -624,12 +635,85 @@ fun TransacaoCard(
                 )
             }
             
-            Text(
-                text = "${if (extrato.tipo == TipoTransacao.CREDITO) "+" else "-"}${formatoMoeda.format(extrato.valor)}",
-                color = cor,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Column(
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(
+                    text = "${if (extrato.tipo == TipoTransacao.CREDITO) "+" else "-"}${formatoMoeda.format(extrato.valor)}",
+                    color = cor,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                
+                Spacer(modifier = Modifier.height(4.dp))
+                
+                // Botão de excluir com borda mínima
+                Box(
+                    modifier = Modifier
+                        .size(18.dp) // Tamanho total muito pequeno
+                        .background(
+                            Color(0xFFFF1744).copy(alpha = 0.15f),
+                            RoundedCornerShape(9.dp)
+                        )
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null // Remove o ripple effect
+                        ) { 
+                            mostrarDialogo = true 
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = "Excluir transação",
+                        tint = Color(0xFFFF1744),
+                        modifier = Modifier.size(14.dp) // Ícone bem pequeno
+                    )
+                }
+            }
         }
+    }
+    
+    // Diálogo de confirmação
+    if (mostrarDialogo) {
+        AlertDialog(
+            onDismissRequest = { mostrarDialogo = false },
+            title = {
+                Text(
+                    text = "Confirmar Exclusão",
+                    color = Color.White
+                )
+            },
+            text = {
+                Text(
+                    text = "Tem certeza que deseja excluir a transação \"${extrato.titulo}\"?",
+                    color = Color.Gray
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onExcluir(extrato.id)
+                        mostrarDialogo = false
+                    }
+                ) {
+                    Text(
+                        text = "Excluir",
+                        color = Color.Red
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { mostrarDialogo = false }
+                ) {
+                    Text(
+                        text = "Cancelar",
+                        color = Color.Gray
+                    )
+                }
+            },
+            containerColor = Color(0xFF2A2A2A)
+        )
     }
 }

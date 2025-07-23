@@ -101,4 +101,8 @@ class ExtratoViewModel : ViewModel() {
             }
         }
     }
+
+    fun limparErro() {
+        _erro.value = null
+    }
 }
