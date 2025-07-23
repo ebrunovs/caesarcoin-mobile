@@ -65,7 +65,6 @@ fun FooterLogin(
             )
         }
 
-        // Botão Central (Caesarcoin)
         Box(
             modifier = Modifier
                 .size(70.dp)

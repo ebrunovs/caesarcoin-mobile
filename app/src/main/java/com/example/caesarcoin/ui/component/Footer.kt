@@ -66,7 +66,7 @@ fun Footer(
                 }
             )
 
-            Spacer(modifier = Modifier.width(60.dp)) // espaço para a moeda
+            Spacer(modifier = Modifier.width(60.dp))
 
             FooterItem(
                 label = "Perfil", 
@@ -89,7 +89,6 @@ fun Footer(
             )
         }
 
-        // Botão Central (Caesarcoin)
         Box(
             modifier = Modifier
                 .size(70.dp)
@@ -104,7 +103,7 @@ fun Footer(
                     .background(Color(0xFFFFD700), shape = CircleShape)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.caesarcoin), // imagem da moeda
+                    painter = painterResource(id = R.drawable.caesarcoin),
                     contentDescription = "Caesarcoin",
                     contentScale = ContentScale.Crop
                 )

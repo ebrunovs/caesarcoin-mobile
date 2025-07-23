@@ -55,7 +55,6 @@ fun ExtratoScreen(
     val formatoMoeda = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
     val formatoData = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
     
-    // Carregar extratos quando o usuário estiver disponível
     LaunchedEffect(usuario) {
         usuario?.let { user ->
             extratoViewModel.carregarExtratos(user.id)
@@ -70,7 +69,6 @@ fun ExtratoScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Header
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -94,7 +92,6 @@ fun ExtratoScreen(
                     textAlign = TextAlign.Center
                 )
                 
-                // Espaço para balancear o layout
                 Box(modifier = Modifier.width(48.dp))
             }
             
@@ -111,7 +108,6 @@ fun ExtratoScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // 1. Componente de Resumo (Entradas/Saídas)
                     item {
                         ResumoFinanceiroCard(
                             totalCreditos = totalCreditos,
@@ -120,7 +116,6 @@ fun ExtratoScreen(
                         )
                     }
                     
-                    // 2. Componente do Saldo Semanal
                     item {
                         SaldoSemanalCard(
                             saldoTotal = saldoTotal,
@@ -141,8 +136,6 @@ fun ExtratoScreen(
                             formatoData = formatoData
                         )
                     }
-                    
-                    // Espaço no final para o footer
                     item {
                         Spacer(modifier = Modifier.height(80.dp))
                     }
@@ -150,7 +143,6 @@ fun ExtratoScreen(
             }
         }
         
-        // Botão flutuante de adicionar transação
         FloatingActionButton(
             onClick = onNavigateToCadastro,
             modifier = Modifier
@@ -166,13 +158,11 @@ fun ExtratoScreen(
             )
         }
         
-        // Mostrar erro se houver
         erro?.let { mensagemErro ->
             Snackbar(
                 modifier = Modifier.align(Alignment.BottomCenter),
                 action = {
                     TextButton(onClick = { 
-                        // Recarregar extratos para limpar o erro
                         usuario?.let { user ->
                             extratoViewModel.carregarExtratos(user.id)
                         }
@@ -197,7 +187,6 @@ fun ResumoFinanceiroCard(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Card Entradas
         Card(
             modifier = Modifier.weight(1f),
             colors = CardDefaults.cardColors(
@@ -234,7 +223,6 @@ fun ResumoFinanceiroCard(
             }
         }
         
-        // Card Saídas
         Card(
             modifier = Modifier.weight(1f),
             colors = CardDefaults.cardColors(
@@ -591,7 +579,6 @@ fun TransacaoCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Ícone baseado no tipo
             val (icone, cor) = when (extrato.tipo) {
                 TipoTransacao.CREDITO -> Pair(Icons.Default.ArrowDownward, Color(0xFF4CAF50))
                 TipoTransacao.DEBITO -> Pair(Icons.Default.ArrowUpward, Color(0xFFF44336))
@@ -616,7 +603,6 @@ fun TransacaoCard(
             
             Spacer(modifier = Modifier.width(12.dp))
             
-            // Informações da transação
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = extrato.titulo,
@@ -638,7 +624,6 @@ fun TransacaoCard(
                 )
             }
             
-            // Valor
             Text(
                 text = "${if (extrato.tipo == TipoTransacao.CREDITO) "+" else "-"}${formatoMoeda.format(extrato.valor)}",
                 color = cor,

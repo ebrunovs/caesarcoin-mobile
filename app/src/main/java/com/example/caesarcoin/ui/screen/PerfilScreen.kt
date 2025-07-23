@@ -37,13 +37,11 @@ fun PerfilScreen(
     authViewModel: AuthViewModel = viewModel(),
     onNavigateBack: () -> Unit = {}
 ) {
-    // Estados da UI
     val usuario by authViewModel.usuarioLogado.collectAsState()
     val carregando by authViewModel.carregando.collectAsState()
     val erro by authViewModel.erro.collectAsState()
     val debugMessages by authViewModel.debugMessages.collectAsState()
     
-    // Estados dos campos editáveis
     var nome by remember { mutableStateOf("") }
     var sobrenome by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -54,7 +52,6 @@ fun PerfilScreen(
     
     val scope = rememberCoroutineScope()
     
-    // Preencher campos quando usuário carregado
     LaunchedEffect(usuario) {
         usuario?.let { user ->
             nome = user.nome
@@ -64,7 +61,6 @@ fun PerfilScreen(
         }
     }
     
-    // Mostrar debug quando houver mensagens
     LaunchedEffect(debugMessages.size) {
         if (debugMessages.isNotEmpty()) {
             showDebug = true
@@ -78,7 +74,6 @@ fun PerfilScreen(
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        // Header com botão voltar e título
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -103,7 +98,6 @@ fun PerfilScreen(
                 )
             }
             
-            // Botão Debug
             if (debugMessages.isNotEmpty() && !showDebug) {
                 TextButton(onClick = { showDebug = true }) {
                     Text(
@@ -117,7 +111,6 @@ fun PerfilScreen(
         
         Spacer(modifier = Modifier.height(32.dp))
         
-        // Avatar
         Box(
             modifier = Modifier
                 .size(120.dp)
@@ -135,7 +128,6 @@ fun PerfilScreen(
         
         Spacer(modifier = Modifier.height(32.dp))
         
-        // Card de Debug Visual (se houver mensagens)
         if (showDebug && debugMessages.isNotEmpty()) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -186,7 +178,6 @@ fun PerfilScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
         
-        // Card com informações do usuário
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -197,7 +188,6 @@ fun PerfilScreen(
             Column(
                 modifier = Modifier.padding(24.dp)
             ) {
-                // Nome e email no topo
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -230,7 +220,6 @@ fun PerfilScreen(
                 
                 Spacer(modifier = Modifier.height(24.dp))
                 
-                // Campos editáveis
                 CampoEditavel(
                     label = "Nome",
                     valor = nome,
@@ -259,7 +248,6 @@ fun PerfilScreen(
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                // Campo senha com visualização
                 Column {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -328,7 +316,6 @@ fun PerfilScreen(
                     }
                 }
                 
-                // Botão Salvar (apenas em modo de edição)
                 if (editMode) {
                     Spacer(modifier = Modifier.height(24.dp))
                     
@@ -362,7 +349,6 @@ fun PerfilScreen(
                     }
                 }
                 
-                // Mostrar erro se houver
                 erro?.let { mensagemErro ->
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(

@@ -63,7 +63,6 @@ fun CadastroTransacaoScreen(
                 .verticalScroll(scrollState)
                 .padding(16.dp)
         ) {
-            // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -85,13 +84,11 @@ fun CadastroTransacaoScreen(
                     textAlign = TextAlign.Center
                 )
                 
-                // Espaço para balancear o layout
                 Box(modifier = Modifier.width(48.dp))
             }
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            // Card do formulário
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -113,8 +110,6 @@ fun CadastroTransacaoScreen(
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
-                    
-                    // Campo Título
                     OutlinedTextField(
                         value = titulo,
                         onValueChange = { titulo = it },
@@ -130,7 +125,6 @@ fun CadastroTransacaoScreen(
                         singleLine = true
                     )
                     
-                    // Campo Descrição
                     OutlinedTextField(
                         value = descricao,
                         onValueChange = { descricao = it },
@@ -146,7 +140,6 @@ fun CadastroTransacaoScreen(
                         maxLines = 2
                     )
                     
-                    // Dropdown para Tipo
                     var expandido by remember { mutableStateOf(false) }
                     
                     ExposedDropdownMenuBox(
@@ -244,6 +237,72 @@ fun CadastroTransacaoScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                     
+                    if (mostrarDatePicker) {
+                        AlertDialog(
+                            onDismissRequest = { mostrarDatePicker = false },
+                            title = { Text("Selecionar Data", color = Color.White) },
+                            text = {
+                                Column {
+                                    Text("Data atual: ${dateFormatter.format(dataSelecionada)}", color = Color.Gray)
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    
+                                    // Botões para dias comuns
+                                    val hoje = Date()
+                                    val ontem = Date(hoje.time - 24 * 60 * 60 * 1000)
+                                    val anteontem = Date(hoje.time - 2 * 24 * 60 * 60 * 1000)
+                                    
+                                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        Button(
+                                            onClick = { 
+                                                dataSelecionada = hoje
+                                                mostrarDatePicker = false
+                                            },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = Color(0xFFFFD700),
+                                                contentColor = Color.Black
+                                            ),
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Text("Hoje (${dateFormatter.format(hoje)})")
+                                        }
+                                        
+                                        Button(
+                                            onClick = { 
+                                                dataSelecionada = ontem
+                                                mostrarDatePicker = false
+                                            },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = Color.Gray,
+                                                contentColor = Color.White
+                                            ),
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Text("Ontem (${dateFormatter.format(ontem)})")
+                                        }
+                                        
+                                        Button(
+                                            onClick = { 
+                                                dataSelecionada = anteontem
+                                                mostrarDatePicker = false
+                                            },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = Color.Gray,
+                                                contentColor = Color.White
+                                            ),
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Text("Anteontem (${dateFormatter.format(anteontem)})")
+                                        }
+                                    }
+                                }
+                            },
+                            confirmButton = {
+                                TextButton(onClick = { mostrarDatePicker = false }) {
+                                    Text("Fechar", color = Color(0xFFFFD700))
+                                }
+                            },
+                            containerColor = Color(0xFF2A2A2A)
+                        )
                     // Botões de atalho para datas comuns
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -275,11 +334,9 @@ fun CadastroTransacaoScreen(
                         }
                     }
                     
-                    // Campo Valor
                     OutlinedTextField(
                         value = valor,
                         onValueChange = { novoValor ->
-                            // Filtrar apenas números e ponto decimal
                             if (novoValor.matches(Regex("^\\d*\\.?\\d*$"))) {
                                 valor = novoValor
                             }
@@ -299,7 +356,6 @@ fun CadastroTransacaoScreen(
                     
                     Spacer(modifier = Modifier.height(8.dp))
                     
-                    // Botões
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -353,7 +409,6 @@ fun CadastroTransacaoScreen(
                 }
             }
             
-            // Mostrar erro se houver
             erro?.let { mensagemErro ->
                 Spacer(modifier = Modifier.height(16.dp))
                 Card(
@@ -377,7 +432,6 @@ fun CadastroTransacaoScreen(
         }
     }
     
-    // Redirecionar para extrato quando transação for salva com sucesso
     LaunchedEffect(transacaoSalva, carregando, erro) {
         if (transacaoSalva && !carregando && erro == null) {
             onTransacaoSalva()

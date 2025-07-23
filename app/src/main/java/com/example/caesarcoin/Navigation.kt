@@ -22,7 +22,7 @@ import com.example.caesarcoin.viewmodel.ExtratoViewModel
 @Composable
 fun NavigationGraph(navController: NavHostController) {
     val authViewModel: AuthViewModel = viewModel()
-    val extratoViewModel: ExtratoViewModel = viewModel() // Instância compartilhada
+    val extratoViewModel: ExtratoViewModel = viewModel()
     val usuario by authViewModel.usuarioLogado.collectAsState()
     val erro by authViewModel.erro.collectAsState()
 
@@ -58,8 +58,8 @@ fun NavigationGraph(navController: NavHostController) {
         }
         composable("extrato") { 
             ExtratoScreen(
-                authViewModel = authViewModel, // Passar o authViewModel compartilhado
-                extratoViewModel = extratoViewModel, // Passar o extratoViewModel compartilhado
+                authViewModel = authViewModel,
+                extratoViewModel = extratoViewModel,
                 onNavigateToHome = { 
                     navController.navigate("home") {
                         popUpTo("extrato") { inclusive = true }
@@ -80,8 +80,8 @@ fun NavigationGraph(navController: NavHostController) {
         }
         composable("cadastro_transacao") { 
             CadastroTransacaoScreen(
-                authViewModel = authViewModel, // Passar o authViewModel compartilhado
-                extratoViewModel = extratoViewModel, // Passar o extratoViewModel compartilhado
+                authViewModel = authViewModel,
+                extratoViewModel = extratoViewModel,
                 onVoltar = { 
                     navController.navigate("home") {
                         popUpTo("cadastro_transacao") { inclusive = true }

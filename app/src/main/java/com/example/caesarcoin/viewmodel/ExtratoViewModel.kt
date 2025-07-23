@@ -40,7 +40,6 @@ class ExtratoViewModel : ViewModel() {
                 val transacoesCarregadas = extratoDao.buscarExtratosPorUsuario(usuarioId)
                 _extratos.value = transacoesCarregadas
                 
-                // Calcular totais
                 _totalCreditos.value = extratoDao.calcularTotalCreditos(transacoesCarregadas)
                 _totalDebitos.value = extratoDao.calcularTotalDebitos(transacoesCarregadas)
                 _saldoTotal.value = extratoDao.calcularSaldo(transacoesCarregadas)
@@ -70,7 +69,6 @@ class ExtratoViewModel : ViewModel() {
                 val sucesso = extratoDao.adicionarTransacao(extratoComUsuario)
                 
                 if (sucesso) {
-                    // Recarregar a lista após adicionar
                     carregarExtratos(usuarioId)
                 } else {
                     _erro.value = "Falha ao salvar no Firebase"
@@ -92,7 +90,6 @@ class ExtratoViewModel : ViewModel() {
                 val sucesso = extratoDao.excluirTransacao(extratoId)
                 
                 if (sucesso) {
-                    // Recarregar a lista após excluir
                     carregarExtratos(usuarioId)
                 } else {
                     _erro.value = "Erro ao excluir transação"

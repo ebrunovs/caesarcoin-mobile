@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 class AuthViewModel : ViewModel() {
 
     private val usuarioDao = UsuarioDao().apply {
-        onDebugMessage = { message -> addDebugMessage(message) }
     }
 
     private val _usuarioLogado = MutableStateFlow<Usuario?>(null)
@@ -77,7 +76,6 @@ class AuthViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                // Verificar se email já existe
                 val usuarioExistente = usuarioDao.buscarUsuarioPorEmail(usuario.email)
                 if (usuarioExistente != null) {
                     _erro.value = "Este email já está cadastrado"
@@ -85,7 +83,6 @@ class AuthViewModel : ViewModel() {
                     return@launch
                 }
 
-                // Salvar novo usuário
                 val sucesso = usuarioDao.adicionarUsuario(usuario)
                 if (sucesso) {
                     _usuarioLogado.value = usuario
@@ -112,16 +109,8 @@ class AuthViewModel : ViewModel() {
     
     suspend fun atualizarPerfil(novoNome: String, novoSobrenome: String, novoEmail: String, novaSenha: String) {
         val usuarioAtual = _usuarioLogado.value ?: return
-        
-        addDebugMessage("🔄 Iniciando atualização do perfil...")
-        addDebugMessage("👤 Usuário atual ID: ${usuarioAtual.id}")
-        addDebugMessage("📝 Nome: '$novoNome'")
-        addDebugMessage("👨 Sobrenome: '$novoSobrenome'") 
-        addDebugMessage("📧 Email: '$novoEmail'")
-        addDebugMessage("🔒 Senha: '${if(novaSenha.isBlank()) "VAZIA" else "DEFINIDA (${novaSenha.length} chars)"}'")
 
         if (novoNome.isBlank() || novoEmail.isBlank()) {
-            addDebugMessage("❌ Erro: Nome e email são obrigatórios")
             _erro.value = "Nome e email são obrigatórios"
             return
         }
@@ -130,35 +119,27 @@ class AuthViewModel : ViewModel() {
         _erro.value = null
 
         try {
-            addDebugMessage("⏳ Criando usuário atualizado...")
             val usuarioAtualizado = usuarioAtual.copy(
                 nome = novoNome,
                 apelido = novoSobrenome,
                 email = novoEmail,
                 senha = novaSenha
             ).apply {
-                id = usuarioAtual.id // CRÍTICO: Preservar o ID após o copy
+                id = usuarioAtual.id 
             }
             
-            addDebugMessage("📤 Enviando para UsuarioDao...")
-            addDebugMessage("🆔 ID que será usado: '${usuarioAtualizado.id}'")
 
             val sucesso = usuarioDao.atualizarUsuario(usuarioAtualizado)
             if (sucesso) {
-                addDebugMessage("✅ Sucesso! Atualizando estado local...")
                 _usuarioLogado.value = usuarioAtualizado
                 _erro.value = null
             } else {
-                addDebugMessage("❌ UsuarioDao retornou FALSE")
                 _erro.value = "Erro ao atualizar perfil"
             }
         } catch (e: Exception) {
-            addDebugMessage("💥 EXCEÇÃO: ${e.message}")
-            addDebugMessage("🔍 Tipo: ${e.javaClass.simpleName}")
             _erro.value = "Erro ao atualizar perfil: ${e.message}"
         } finally {
             _carregando.value = false
-            addDebugMessage("🏁 Processo finalizado")
         }
     }
 }
