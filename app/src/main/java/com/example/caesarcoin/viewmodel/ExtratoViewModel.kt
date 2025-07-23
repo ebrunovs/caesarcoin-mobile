@@ -97,13 +97,22 @@ class ExtratoViewModel : ViewModel() {
     fun excluirTransacao(extratoId: String, usuarioId: String) {
         _carregando.value = true
         _erro.value = null
-        
+
         viewModelScope.launch {
             try {
                 val sucesso = extratoDao.excluirTransacao(extratoId)
-                
+
                 if (sucesso) {
-                    carregarExtratos(usuarioId)
+                    // Atualiza a lista local imediatamente
+                    _extratos.value = _extratos.value.filter { it.id != extratoId }
+
+                    // Recalcula os totais
+                    _totalCreditos.value = extratoDao.calcularTotalCreditos(_extratos.value)
+                    _totalDebitos.value = extratoDao.calcularTotalDebitos(_extratos.value)
+                    _saldoTotal.value = extratoDao.calcularSaldo(_extratos.value)
+
+                    // Força um recarregamento completo em seguida
+                    carregarExtratos(usuarioId, forcarReload = true)
                 } else {
                     _erro.value = "Erro ao excluir transação"
                 }
@@ -118,4 +127,5 @@ class ExtratoViewModel : ViewModel() {
     fun limparErro() {
         _erro.value = null
     }
+
 }
