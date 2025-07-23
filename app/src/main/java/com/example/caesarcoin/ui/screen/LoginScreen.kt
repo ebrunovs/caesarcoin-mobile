@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.caesarcoin.R
-import com.example.caesarcoin.auth.AuthViewModel
+import com.example.caesarcoin.viewmodel.AuthViewModel
 
 @Composable
 fun LoginScreen(

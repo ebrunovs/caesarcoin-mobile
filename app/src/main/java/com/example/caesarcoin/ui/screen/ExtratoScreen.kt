@@ -1,5 +1,6 @@
 package com.example.caesarcoin.ui.screen
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,13 +15,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.caesarcoin.auth.AuthViewModel
+import com.example.caesarcoin.viewmodel.AuthViewModel
 import com.example.caesarcoin.model.Extrato
 import com.example.caesarcoin.model.TipoTransacao
 import com.example.caesarcoin.viewmodel.ExtratoViewModel
@@ -121,14 +128,12 @@ fun ExtratoScreen(
                         )
                     }
                     
-                    // 3. Componente do Gráfico (Simplificado)
+                    // 3. Componente do Gráfico (Gráfico de Linhas)
                     item {
-                        GraficoSimplificadoCard(extratos = extratos)
+                        GraficoLinhasCard(extratos = extratos)
                     }
                     
-
-                    
-                    // 5. Lista de Transações
+                    // 4. Lista de Transações
                     items(extratos) { extrato ->
                         TransacaoCard(
                             extrato = extrato,
@@ -302,11 +307,11 @@ fun SaldoSemanalCard(
 }
 
 @Composable
-fun GraficoSimplificadoCard(extratos: List<Extrato>) {
+fun GraficoLinhasCard(extratos: List<Extrato>) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp),
+            .height(280.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFF2A2A2A)
         ),
@@ -338,73 +343,227 @@ fun GraficoSimplificadoCard(extratos: List<Extrato>) {
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Gráfico de Transações",
+                    text = "Últimos 7 Dias",
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
                 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 
-                // Simulação simples de gráfico com barras
-                val totalCreditos = extratos.filter { it.tipo == TipoTransacao.CREDITO }.size
-                val totalDebitos = extratos.filter { it.tipo == TipoTransacao.DEBITO }.size
-                val maxTransacoes = maxOf(totalCreditos, totalDebitos).coerceAtLeast(1)
+                // Calcular os últimos 7 dias FORA do Canvas
+                val calendar = Calendar.getInstance()
+                val hoje = calendar.time
+                val diasLabels = mutableListOf<String>()
+                val datasConsulta = mutableListOf<Date>()
                 
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.Bottom
+                // Criar lista dos últimos 7 dias (do mais antigo para o mais recente)
+                for (i in 6 downTo 0) {
+                    calendar.time = hoje
+                    calendar.add(Calendar.DAY_OF_YEAR, -i)
+                    datasConsulta.add(calendar.time)
+                    
+                    val formatter = SimpleDateFormat("dd/MM", Locale.getDefault())
+                    diasLabels.add(formatter.format(calendar.time))
+                }
+                
+                val dadosEntradas = mutableListOf<Float>()
+                val dadosSaidas = mutableListOf<Float>()
+                
+                // Agrupar transações por cada um dos últimos 7 dias
+                for (data in datasConsulta) {
+                    val entradasDia = extratos.filter { extrato ->
+                        val extratoCalendar = Calendar.getInstance()
+                        extratoCalendar.time = extrato.data.toDate()
+                        
+                        val dataCalendar = Calendar.getInstance()
+                        dataCalendar.time = data
+                        
+                        extratoCalendar.get(Calendar.YEAR) == dataCalendar.get(Calendar.YEAR) &&
+                        extratoCalendar.get(Calendar.DAY_OF_YEAR) == dataCalendar.get(Calendar.DAY_OF_YEAR) &&
+                        extrato.tipo == TipoTransacao.CREDITO
+                    }.sumOf { it.valor }.toFloat()
+                    
+                    val saidasDia = extratos.filter { extrato ->
+                        val extratoCalendar = Calendar.getInstance()
+                        extratoCalendar.time = extrato.data.toDate()
+                        
+                        val dataCalendar = Calendar.getInstance()
+                        dataCalendar.time = data
+                        
+                        extratoCalendar.get(Calendar.YEAR) == dataCalendar.get(Calendar.YEAR) &&
+                        extratoCalendar.get(Calendar.DAY_OF_YEAR) == dataCalendar.get(Calendar.DAY_OF_YEAR) &&
+                        extrato.tipo == TipoTransacao.DEBITO
+                    }.sumOf { it.valor }.toFloat()
+                    
+                    dadosEntradas.add(entradasDia)
+                    dadosSaidas.add(saidasDia)
+                }
+                
+                val maxValor = maxOf(
+                    dadosEntradas.maxOrNull() ?: 0f,
+                    dadosSaidas.maxOrNull() ?: 0f
+                ).coerceAtLeast(100f)
+                
+                // Área do gráfico
+                Canvas(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(140.dp)
                 ) {
-                    // Barra de Entradas
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = totalCreditos.toString(),
-                            color = Color(0xFF4CAF50),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Box(
-                            modifier = Modifier
-                                .width(40.dp)
-                                .height((totalCreditos.toFloat() / maxTransacoes * 100).dp.coerceAtLeast(10.dp))
-                                .background(
-                                    Color(0xFF4CAF50),
-                                    RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)
-                                )
-                        )
-                        Text(
-                            text = "Entradas",
-                            color = Color.Gray,
-                            fontSize = 10.sp
+                    val width = size.width
+                    val height = size.height
+                    val padding = 40.dp.toPx()
+                    
+                    // Desenhar linhas de grade horizontais
+                    val linhasGrade = 4
+                    for (i in 0..linhasGrade) {
+                        val y = padding + (height - 2 * padding) * i / linhasGrade
+                        drawLine(
+                            color = androidx.compose.ui.graphics.Color.Gray.copy(alpha = 0.3f),
+                            start = Offset(padding, y),
+                            end = Offset(width - padding, y),
+                            strokeWidth = 1.dp.toPx(),
+                            pathEffect = PathEffect.dashPathEffect(
+                                floatArrayOf(5f, 5f)
+                            )
                         )
                     }
                     
-                    // Barra de Saídas
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = totalDebitos.toString(),
-                            color = Color(0xFFF44336),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
+                    val espacamento = (width - 2 * padding) / (diasLabels.size - 1)
+                    
+                    // Desenhar linha das entradas (verde)
+                    if (dadosEntradas.isNotEmpty()) {
+                        val pathEntradas = Path()
+                        for (i in dadosEntradas.indices) {
+                            val x = padding + i * espacamento
+                            val y = height - padding - (dadosEntradas[i] / maxValor) * (height - 2 * padding)
+                            
+                            if (i == 0) {
+                                pathEntradas.moveTo(x, y)
+                            } else {
+                                pathEntradas.lineTo(x, y)
+                            }
+                        }
+                        
+                        drawPath(
+                            path = pathEntradas,
+                            color = androidx.compose.ui.graphics.Color(0xFF4CAF50),
+                            style = Stroke(
+                                width = 3.dp.toPx(),
+                                cap = StrokeCap.Round,
+                                join = StrokeJoin.Round
+                            )
                         )
+                        
+                        // Pontos nas entradas
+                        for (i in dadosEntradas.indices) {
+                            val x = padding + i * espacamento
+                            val y = height - padding - (dadosEntradas[i] / maxValor) * (height - 2 * padding)
+                            drawCircle(
+                                color = androidx.compose.ui.graphics.Color(0xFF4CAF50),
+                                radius = 4.dp.toPx(),
+                                center = Offset(x, y)
+                            )
+                        }
+                    }
+                    
+                    // Desenhar linha das saídas (vermelho)
+                    if (dadosSaidas.isNotEmpty()) {
+                        val pathSaidas = Path()
+                        for (i in dadosSaidas.indices) {
+                            val x = padding + i * espacamento
+                            val y = height - padding - (dadosSaidas[i] / maxValor) * (height - 2 * padding)
+                            
+                            if (i == 0) {
+                                pathSaidas.moveTo(x, y)
+                            } else {
+                                pathSaidas.lineTo(x, y)
+                            }
+                        }
+                        
+                        drawPath(
+                            path = pathSaidas,
+                            color = androidx.compose.ui.graphics.Color(0xFFF44336),
+                            style = Stroke(
+                                width = 3.dp.toPx(),
+                                cap = StrokeCap.Round,
+                                join = StrokeJoin.Round
+                            )
+                        )
+                        
+                        // Pontos nas saídas
+                        for (i in dadosSaidas.indices) {
+                            val x = padding + i * espacamento
+                            val y = height - padding - (dadosSaidas[i] / maxValor) * (height - 2 * padding)
+                            drawCircle(
+                                color = androidx.compose.ui.graphics.Color(0xFFF44336),
+                                radius = 4.dp.toPx(),
+                                center = Offset(x, y)
+                            )
+                        }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // Labels das datas
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    diasLabels.forEach { dia ->
+                        Text(
+                            text = dia,
+                            color = Color.Gray,
+                            fontSize = 12.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // Legenda
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    // Entradas
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .width(40.dp)
-                                .height((totalDebitos.toFloat() / maxTransacoes * 100).dp.coerceAtLeast(10.dp))
+                                .size(8.dp)
                                 .background(
-                                    Color(0xFFF44336),
-                                    RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)
+                                    Color(0xFF4CAF50),
+                                    androidx.compose.foundation.shape.CircleShape
                                 )
                         )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Entradas",
+                            color = Color.Gray,
+                            fontSize = 12.sp
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.width(16.dp))
+                    
+                    // Saídas
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .background(
+                                    Color(0xFFF44336),
+                                    androidx.compose.foundation.shape.CircleShape
+                                )
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "Saídas",
                             color = Color.Gray,
-                            fontSize = 10.sp
+                            fontSize = 12.sp
                         )
                     }
                 }

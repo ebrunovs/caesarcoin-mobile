@@ -20,7 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.caesarcoin.auth.AuthViewModel
+import com.example.caesarcoin.viewmodel.AuthViewModel
 import com.example.caesarcoin.model.Extrato
 import com.example.caesarcoin.model.TipoTransacao
 import com.example.caesarcoin.viewmodel.ExtratoViewModel

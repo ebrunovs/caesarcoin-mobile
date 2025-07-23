@@ -2,6 +2,8 @@ package com.example.caesarcoin.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -16,13 +18,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.caesarcoin.auth.AuthViewModel
+import com.example.caesarcoin.viewmodel.AuthViewModel
 import com.example.caesarcoin.model.Extrato
 import com.example.caesarcoin.model.TipoTransacao
 import com.example.caesarcoin.viewmodel.ExtratoViewModel
 import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
 import java.util.*
+import android.app.DatePickerDialog
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,6 +49,8 @@ fun CadastroTransacaoScreen(
     var transacaoSalva by remember { mutableStateOf(false) }
     
     val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    val context = LocalContext.current
+    val scrollState = rememberScrollState()
     
     Box(
         modifier = modifier
@@ -54,6 +60,7 @@ fun CadastroTransacaoScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(scrollState)
                 .padding(16.dp)
         ) {
             // Header
@@ -82,20 +89,20 @@ fun CadastroTransacaoScreen(
                 Box(modifier = Modifier.width(48.dp))
             }
             
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             
             // Card do formulário
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color(0xFF2A2A2A)
                 )
             ) {
                 Column(
-                    modifier = Modifier.padding(24.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
@@ -119,14 +126,15 @@ fun CadastroTransacaoScreen(
                             unfocusedTextColor = Color.White,
                             cursorColor = Color(0xFFFFD700)
                         ),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
                     )
                     
                     // Campo Descrição
                     OutlinedTextField(
                         value = descricao,
                         onValueChange = { descricao = it },
-                        label = { Text("Descrição", color = Color.Gray) },
+                        label = { Text("Descrição (opcional)", color = Color.Gray) },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFFFFD700),
                             unfocusedBorderColor = Color.Gray,
@@ -195,16 +203,30 @@ fun CadastroTransacaoScreen(
                         }
                     }
                     
-                    // Campo Data
-                    var mostrarDatePicker by remember { mutableStateOf(false) }
-                    
+                    // Campo Data - Novo seletor melhorado
                     OutlinedTextField(
                         value = dateFormatter.format(dataSelecionada),
                         onValueChange = {},
                         label = { Text("Data de Realização", color = Color.Gray) },
                         readOnly = true,
                         trailingIcon = {
-                            IconButton(onClick = { mostrarDatePicker = true }) {
+                            IconButton(onClick = { 
+                                // Usar DatePickerDialog nativo do Android
+                                val calendar = Calendar.getInstance()
+                                calendar.time = dataSelecionada
+                                
+                                DatePickerDialog(
+                                    context,
+                                    { _, year, month, dayOfMonth ->
+                                        val novaData = Calendar.getInstance()
+                                        novaData.set(year, month, dayOfMonth)
+                                        dataSelecionada = novaData.time
+                                    },
+                                    calendar.get(Calendar.YEAR),
+                                    calendar.get(Calendar.MONTH),
+                                    calendar.get(Calendar.DAY_OF_MONTH)
+                                ).show()
+                            }) {
                                 Icon(
                                     Icons.Default.DateRange,
                                     contentDescription = "Selecionar data",
@@ -222,73 +244,35 @@ fun CadastroTransacaoScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                     
-                    // Implementação simples de Date Picker
-                    if (mostrarDatePicker) {
-                        AlertDialog(
-                            onDismissRequest = { mostrarDatePicker = false },
-                            title = { Text("Selecionar Data", color = Color.White) },
-                            text = {
-                                Column {
-                                    Text("Data atual: ${dateFormatter.format(dataSelecionada)}", color = Color.Gray)
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    
-                                    // Botões para dias comuns
-                                    val hoje = Date()
-                                    val ontem = Date(hoje.time - 24 * 60 * 60 * 1000)
-                                    val anteontem = Date(hoje.time - 2 * 24 * 60 * 60 * 1000)
-                                    
-                                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        Button(
-                                            onClick = { 
-                                                dataSelecionada = hoje
-                                                mostrarDatePicker = false
-                                            },
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = Color(0xFFFFD700),
-                                                contentColor = Color.Black
-                                            ),
-                                            modifier = Modifier.fillMaxWidth()
-                                        ) {
-                                            Text("Hoje (${dateFormatter.format(hoje)})")
-                                        }
-                                        
-                                        Button(
-                                            onClick = { 
-                                                dataSelecionada = ontem
-                                                mostrarDatePicker = false
-                                            },
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = Color.Gray,
-                                                contentColor = Color.White
-                                            ),
-                                            modifier = Modifier.fillMaxWidth()
-                                        ) {
-                                            Text("Ontem (${dateFormatter.format(ontem)})")
-                                        }
-                                        
-                                        Button(
-                                            onClick = { 
-                                                dataSelecionada = anteontem
-                                                mostrarDatePicker = false
-                                            },
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = Color.Gray,
-                                                contentColor = Color.White
-                                            ),
-                                            modifier = Modifier.fillMaxWidth()
-                                        ) {
-                                            Text("Anteontem (${dateFormatter.format(anteontem)})")
-                                        }
-                                    }
-                                }
-                            },
-                            confirmButton = {
-                                TextButton(onClick = { mostrarDatePicker = false }) {
-                                    Text("Fechar", color = Color(0xFFFFD700))
-                                }
-                            },
-                            containerColor = Color(0xFF2A2A2A)
-                        )
+                    // Botões de atalho para datas comuns
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        val hoje = Date()
+                        val ontem = Date(hoje.time - 24 * 60 * 60 * 1000)
+                        
+                        TextButton(
+                            onClick = { dataSelecionada = hoje },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                "Hoje",
+                                color = Color(0xFFFFD700),
+                                fontSize = 12.sp
+                            )
+                        }
+                        
+                        TextButton(
+                            onClick = { dataSelecionada = ontem },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                "Ontem",
+                                color = Color.Gray,
+                                fontSize = 12.sp
+                            )
+                        }
                     }
                     
                     // Campo Valor
@@ -309,15 +293,16 @@ fun CadastroTransacaoScreen(
                             unfocusedTextColor = Color.White,
                             cursorColor = Color(0xFFFFD700)
                         ),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
                     )
                     
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     
                     // Botões
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         OutlinedButton(
                             onClick = onVoltar,
@@ -386,6 +371,9 @@ fun CadastroTransacaoScreen(
                     )
                 }
             }
+            
+            // Espaço extra no final para garantir que tudo seja visível
+            Spacer(modifier = Modifier.height(100.dp))
         }
     }
     
