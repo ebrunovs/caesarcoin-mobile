@@ -1,4 +1,4 @@
-package com.example.caesarcoin.auth
+package com.example.caesarcoin.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

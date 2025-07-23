@@ -14,7 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.caesarcoin.auth.AuthViewModel
+import com.example.caesarcoin.viewmodel.AuthViewModel
 import com.example.caesarcoin.ui.component.Footer
 import com.example.caesarcoin.ui.component.FooterLogin
 import com.example.caesarcoin.ui.theme.CaesarCoinTheme

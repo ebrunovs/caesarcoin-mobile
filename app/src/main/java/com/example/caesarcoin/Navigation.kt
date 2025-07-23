@@ -9,7 +9,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
-import com.example.caesarcoin.auth.AuthViewModel
+import com.example.caesarcoin.viewmodel.AuthViewModel
 import com.example.caesarcoin.model.Usuario
 import com.example.caesarcoin.ui.screen.CadastroScreen
 import com.example.caesarcoin.ui.screen.CadastroTransacaoScreen
