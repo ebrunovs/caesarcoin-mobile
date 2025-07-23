@@ -58,7 +58,7 @@ fun ExtratoScreen(
     val formatoMoeda = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
     val formatoData = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
     
-    LaunchedEffect(usuario) {
+    LaunchedEffect(usuario) { 
         usuario?.let { user ->
             extratoViewModel.carregarExtratos(user.id)
         }

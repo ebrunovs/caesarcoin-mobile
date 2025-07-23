@@ -31,7 +31,20 @@ class ExtratoViewModel : ViewModel() {
     private val _saldoTotal = MutableStateFlow(0.0)
     val saldoTotal: StateFlow<Double> = _saldoTotal
 
-    fun carregarExtratos(usuarioId: String) {
+    private var ultimoUsuarioCarregado: String? = null
+    private var carregamentoInicial = false
+
+    fun carregarExtratos(usuarioId: String, forcarReload: Boolean = false) {
+        // Evita recarregamentos desnecessários
+        if (!forcarReload && 
+            ultimoUsuarioCarregado == usuarioId && 
+            _extratos.value.isNotEmpty() && 
+            carregamentoInicial) {
+            return
+        }
+        
+        ultimoUsuarioCarregado = usuarioId
+        carregamentoInicial = true
         _carregando.value = true
         _erro.value = null
         
@@ -69,7 +82,7 @@ class ExtratoViewModel : ViewModel() {
                 val sucesso = extratoDao.adicionarTransacao(extratoComUsuario)
                 
                 if (sucesso) {
-                    carregarExtratos(usuarioId)
+                    carregarExtratos(usuarioId, forcarReload = true) 
                 } else {
                     _erro.value = "Falha ao salvar no Firebase"
                 }
